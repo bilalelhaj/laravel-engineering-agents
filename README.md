@@ -43,7 +43,11 @@ to refine it. Then @laravel-phase-planner to synthesize phases. Then build
 phase by phase with @laravel-builder, running @laravel-reviewer after each.
 ```
 
-For a one-line bug fix, skip the pipeline. Use it when the change touches the database and needs tests. See [examples/walkthrough.md](examples/walkthrough.md) for a full run.
+For a one-line bug fix, skip the pipeline. Use it when the change touches the database and needs tests.
+
+**Examples:**
+- [`examples/real-run.md`](examples/real-run.md) — actual end-to-end run on a Laravel 13 / Pest 4 diary app: 3 refinement agents in parallel, phase planning with 5 conflicts auto-resolved, 3 build/review cycles, 13 new tests passing
+- [`examples/walkthrough.md`](examples/walkthrough.md) — constructed minimal flow as a quick mental model
 
 ## Coding philosophy — TL;DR
 
