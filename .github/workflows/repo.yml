@@ -1,0 +1,54 @@
+name: Repository
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  readme-references:
+    name: README references every agent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          set -e
+          fail=0
+          for agent in .claude/agents/*.md; do
+            name=$(basename "$agent" .md)
+            if ! grep -q "$name" README.md; then
+              echo "✗ README.md does not mention agent '$name'"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ README mentions every agent"
+
+  readme-links:
+    name: README internal links resolve
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          set -e
+          fail=0
+          for link in $(grep -oE '\(examples/[^)]+\)' README.md | tr -d '()'); do
+            if [ ! -f "$link" ]; then
+              echo "✗ README links to '$link' but the file does not exist"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ All README example links resolve"
+
+  contributing:
+    name: CONTRIBUTING.md present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          test -f CONTRIBUTING.md || { echo "✗ CONTRIBUTING.md missing"; exit 1; }
+          echo "✓ CONTRIBUTING.md present"

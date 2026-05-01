@@ -1,0 +1,89 @@
+name: Agents
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  frontmatter:
+    name: Frontmatter — name + description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tools field is intentionally not parsed: Claude Code's `Agent(...)` syntax is
+      # not strict YAML, and we don't need to validate it — only that name+description
+      # are extractable for routing.
+      - name: Every agent has frontmatter (name + description ≥ 50 chars)
+        run: |
+          set -e
+          fail=0
+          for agent in .claude/agents/*.md; do
+            fm=$(awk '/^---$/{f++; next} f==1' "$agent")
+            name=$(echo "$fm" | grep -E '^name:' | head -1 | sed -E 's/^name:[[:space:]]*//')
+            description=$(echo "$fm" | grep -E '^description:' | head -1 | sed -E 's/^description:[[:space:]]*//')
+
+            if [ -z "$name" ]; then
+              echo "✗ $agent: missing 'name:' line in frontmatter"
+              fail=1; continue
+            fi
+            if [ -z "$description" ]; then
+              echo "✗ $agent: missing 'description:' line in frontmatter"
+              fail=1; continue
+            fi
+            if [ "${#description}" -lt 50 ]; then
+              echo "✗ $agent: description too short (${#description} chars, need ≥ 50)"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ All agents have valid frontmatter"
+
+  naming:
+    name: Frontmatter name matches filename
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          set -e
+          fail=0
+          for agent in .claude/agents/*.md; do
+            filename=$(basename "$agent" .md)
+            fm=$(awk '/^---$/{f++; next} f==1' "$agent")
+            name=$(echo "$fm" | grep -E '^name:' | head -1 | sed -E 's/^name:[[:space:]]*//')
+            if [ "$filename" != "$name" ]; then
+              echo "✗ $agent: frontmatter name '$name' does not match filename '$filename'"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ All agent filenames match their frontmatter name"
+
+  orchestrator-whitelist:
+    name: Orchestrator reaches every standard-pipeline agent
+    runs-on: ubuntu-latest
+    # Catches the v3-style bug where adding a new pipeline agent
+    # forgets to wire it into the orchestrator's Agent(...) tools.
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          set -e
+          orch=.claude/agents/laravel-orchestrator.md
+          tools=$(grep -E '^tools:' "$orch")
+          fail=0
+          for agent in .claude/agents/*.md; do
+            name=$(basename "$agent" .md)
+            case "$name" in
+              laravel-orchestrator|laravel-debugger|laravel-migrator)
+                continue ;;  # orchestrator itself; on-demand agents
+            esac
+            if ! echo "$tools" | grep -q "$name"; then
+              echo "✗ $name is a standard-pipeline agent but not in laravel-orchestrator's Agent(...) whitelist"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ Orchestrator whitelists every standard-pipeline agent"

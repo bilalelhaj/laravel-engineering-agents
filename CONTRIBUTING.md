@@ -62,16 +62,23 @@ claude  # restart Claude Code to pick them up
 
 ## CI
 
-The `Validate` workflow runs on every push and PR:
+Three workflows run on every push and PR:
 
-- Plugin manifest valid JSON + required fields present
+**`Plugin manifest`** — `.github/workflows/plugin.yml`
+- `plugin.json` is valid JSON
+- All required fields present (`name`, `version`, `description`, `author`, `license`, `agents`)
+
+**`Agents`** — `.github/workflows/agents.yml`
 - Every agent has frontmatter with `name` + `description` (≥ 50 chars)
 - Frontmatter `name` matches filename
-- README mentions every agent
-- README example links resolve
 - Every standard-pipeline agent is reachable from the orchestrator's `Agent(...)` whitelist
 
-Green CI is required to merge.
+**`Repository`** — `.github/workflows/repo.yml`
+- README mentions every agent
+- README internal links resolve
+- `CONTRIBUTING.md` present
+
+All three must be green to merge. Each shows up as a separate status check on the PR.
 
 ## License
 

@@ -1,0 +1,28 @@
+name: Plugin manifest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Valid JSON
+        run: |
+          jq empty .claude-plugin/plugin.json
+          echo "✓ plugin.json is valid JSON"
+
+      - name: Required fields present
+        run: |
+          set -e
+          for field in name version description author license agents; do
+            if ! jq -e ".${field}" .claude-plugin/plugin.json > /dev/null; then
+              echo "✗ plugin.json missing required field: ${field}"
+              exit 1
+            fi
+          done
+          echo "✓ plugin.json has all required fields"
