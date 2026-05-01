@@ -1,6 +1,8 @@
 # Walkthrough — Newsletter Subscription Feature
 
-A complete end-to-end run of the three agents on a small but realistic feature: *"a logged-in user can subscribe to a newsletter, and gets a confirmation email."*
+> **Note.** This walkthrough shows the **minimal architect → builder → reviewer flow**, suitable for small features that don't need a full refinement pass. The current pipeline also includes `laravel-db-architect`, `laravel-ui-ux`, and `laravel-phase-planner` for parallel refinement before the build phase. A full real-run on a Laravel 13 / Pest 4 project will be published as `real-run.md` once captured end-to-end.
+
+A complete end-to-end run of the three core agents on a small but realistic feature: *"a logged-in user can subscribe to a newsletter, and gets a confirmation email."*
 
 This is a **constructed example** — the outputs below are representative of what each agent produces, not a transcript of one specific run. Run it on your own project to see the real outputs.
 
