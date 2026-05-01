@@ -51,6 +51,7 @@ flowchart LR
 | `laravel-devops` | Dockerfile + Compose layout, CI/CD, deployment strategy, online migrations for live tables, image-size and cost trade-offs. Conservative — plans first, edits with explicit "go". | `docs/devops.md` |
 | `laravel-perf` | Caching strategy, queue architecture (Horizon, retry/backoff, dead-letter), rate-limiting, p95-latency budgets, Sentry / Pulse instrumentation. Profile before optimizing. | `docs/perf.md` |
 | `laravel-security` | Auth (password hashing, 2FA, sessions, tokens), authorization (Policies, tenancy), cryptography (encrypted casts, signed URLs), input validation, XSS / CSRF / SSRF, HTTP headers, dependency CVEs, secret management, GDPR. Threat-models every finding. | `docs/security.md` |
+| `laravel-tasks` | Reads a `TODO.md` (or Linear / ClickUp / Trello / GitHub Issues via MCP), classifies each item, routes to the right pipeline (orchestrator for features, debugger for bugs, migrator for upgrades, security for audits, etc.), runs sequentially, flips checkboxes on success. One task at a time, stops on failure. | task-run report + updated `TODO.md` |
 
 ## Install
 
@@ -67,7 +68,7 @@ git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Either way: restart Claude Code or run `/agents` — the fifteen agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the sixteen agents appear in the list.
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
@@ -144,6 +145,14 @@ Run @laravel-architect, @laravel-db-architect, and @laravel-ui-ux IN PARALLEL
 to refine it. Then @laravel-phase-planner to synthesize phases. Then build
 phase by phase with @laravel-builder, running @laravel-reviewer after each.
 ```
+
+**Queue-style — let the task runner work through your `TODO.md`:**
+
+```
+@laravel-tasks run through TODO.md
+```
+
+Drop a `TODO.md` at the repo root, write tasks as markdown checkboxes (optionally tagged `[feature]`, `[bug]`, `[migration]`, `[security]`, `[devops]`, `[perf]`). The agent classifies each item, dispatches to the right specialist, runs them one at a time, flips checkboxes on success. See [`examples/TODO.example.md`](examples/TODO.example.md) for the format. Linear / ClickUp / Trello / GitHub Issues are supported when an MCP server for them is configured.
 
 For a one-line bug fix, skip the pipeline. Use it when the change touches the database and needs tests.
 
@@ -276,6 +285,7 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 - [x] Real-run lessons baked back: defense-in-depth conflicts caught at the planner layer
 - [x] Filament family: `filament-architect`, `filament-builder`, `filament-reviewer`
 - [x] On-demand: `laravel-debugger`, `laravel-migrator`, `laravel-devops`, `laravel-perf`, `laravel-security`
+- [x] Task runner: `laravel-tasks` — reads `TODO.md` (or Linear / ClickUp / Trello via MCP) and dispatches each item
 - [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
