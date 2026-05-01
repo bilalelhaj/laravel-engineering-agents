@@ -77,7 +77,7 @@ jobs:
           for agent in .claude/agents/*.md; do
             name=$(basename "$agent" .md)
             case "$name" in
-              laravel-orchestrator|laravel-debugger|laravel-migrator|laravel-devops|laravel-perf|laravel-security|laravel-tasks)
+              laravel-orchestrator|laravel-debugger|laravel-migrator|laravel-devops|laravel-perf|laravel-security|laravel-tasks|laravel-triage)
                 continue ;;  # orchestrator itself; on-demand agents
             esac
             if ! echo "$tools" | grep -q "$name"; then
