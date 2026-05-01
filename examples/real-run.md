@@ -80,21 +80,42 @@ The builder followed `architecture.md` faithfully. The phase-planner accepted bo
 
 That's the value of independent review.
 
-## Improvements made between v1 and v2 of the refinement agents
+## v1 → v2 → v3 evolution
 
-This was the **second** run. The first run revealed seven concrete weaknesses; the agent system prompts were updated, then re-run on the same spec. Comparison:
+The agents shipped in three iterations. Each generation closed a gap the previous run surfaced.
+
+### v1 → v2 — added rigour to the refinement docs
+
+The first run produced consistent-but-shallow output. Seven mandatory sections were added to the refinement-agent prompts.
 
 | | v1 | v2 |
 | :--- | :--- | :--- |
 | Cross-lens conflicts caught | 0 (lucky agreement) | 5 (planner) + 1 (reviewer) |
-| Existing-code interactions documented | 0 | 5 in architect (lazy-create, scopeSearch, /search 2-char-min, sidebar, routes) |
-| Permission UX behavior documented | No | All 5 `TagPolicy` methods, with hide/disable/error rationale |
-| Cap/limit UI surfaces documented | Vague (caps mentioned, not surfaced) | 6 explicit caps with input state + helper text |
+| Existing-code interactions documented | 0 | 5 in architect (lazy-create, `scopeSearch`, /search 2-char-min, sidebar, routes) |
+| Permission UX behavior documented | No | All 5 `TagPolicy` methods, hide/disable/error rationale |
+| Cap/limit UI surfaces documented | Vague | 6 explicit caps with input state + helper text |
 | Self-check at end of doc | No | All three docs, all boxes ticked |
 | Cross-impact tag on defaulted decisions | No | Mandatory `impacts: db, ui` etc. |
 | Sibling-notes section | No | Mandatory; specifically addressed to db-architect / ui-ux |
 
-The seven improvements are documented in the repo's commit history under "Strengthen refinement agents".
+### v2 → v3 — moved a real-world finding upstream
+
+The build/review cycle on this run caught **H11**: cross-user safety relied on caller discipline. Architect & db-architect were both on-plan but disagreed silently — architect said "caller scopes", db-architect's plan recommended defense-in-depth, the planner accepted both without flagging. The reviewer caught it post-hoc.
+
+v3 moves that detection to the planner so it's prevented, not flagged.
+
+| | v2 | v3 |
+| :--- | :--- | :--- |
+| Defense-in-depth disagreements | Silently accepted, found by reviewer (H11) | Resolved by planner before phases are written |
+| `architect` safety model | Implicit | Mandatory "Safety model for cross-tenant data" section: declare caller-scoped vs defense-in-depth |
+| `db-architect` safety flag | Implicit | `[SAFETY-CRITICAL]` flag on stricter recommendations |
+| `phase-planner` rule | "Stop on conflict" | "Defense-in-depth disagreements ARE conflicts; default to stricter" |
+| Reviewer category | H11 (KISS/SRP only) | H12 added: "Defense-in-depth scoping deviation" |
+| Pipeline orchestration | 7-line manual prompt | `@laravel-orchestrator implement docs/spec.md` (one-liner) |
+| Install | `git clone && cp` | `/plugin install …@bilalelhaj/laravel-engineering-agents` |
+| Repo CI | None | GitHub Actions: plugin manifest schema, agent frontmatter, README cross-references |
+
+> **Note.** The v3 changes were applied to agent prompts and validated by the CI workflow, but **not** re-run end-to-end against `tagebuch` — the v2 run is the canonical "real run" captured here. A v3 re-run on a fresh feature would be the next dogfood cycle.
 
 ## Honest limitations of this run
 

@@ -1,18 +1,22 @@
 # Laravel Engineering Agents
 
-> A multi-agent Claude Code workflow for Laravel — three specialists refine
-> your spec in parallel, a planner slices it into phases, a builder ships
-> them test-first, an independent reviewer audits.
+> Multi-agent Claude Code pipeline for Laravel — six specialists refine, plan,
+> build, and review your features. An optional orchestrator drives the whole
+> pipeline end-to-end with one prompt.
 
 ```mermaid
 flowchart LR
-    U[Spec] --> A["@laravel-architect"]
-    U --> D["@laravel-db-architect"]
-    U --> UI["@laravel-ui-ux"]
+    O["@laravel-orchestrator<br/><sub><i>optional one-prompt driver</i></sub>"]
+    Spec[Spec]
+
+    O -.->|dispatches all| Spec
+    Spec --> A["@laravel-architect"]
+    Spec --> D["@laravel-db-architect"]
+    Spec --> UI["@laravel-ui-ux"]
     A & D & UI --> P["@laravel-phase-planner"]
     P --> B["@laravel-builder"]
     B --> R["@laravel-reviewer"]
-    R -->|findings| U
+    R -->|findings| Spec
 ```
 
 | Agent | Lens | Output |
