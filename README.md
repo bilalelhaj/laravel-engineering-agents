@@ -118,18 +118,56 @@ If you want a different style — God services, fat models, Repository wrappers,
 
 ## Why subagents and not skills
 
-Claude Code offers two related primitives — **subagents** and **skills** — and the choice matters here.
+Claude Code offers two ways to package reusable AI workflows — **subagents** and **skills**[^subagents-skills]. They look similar (both are markdown files with frontmatter), but they behave fundamentally differently. We chose subagents deliberately, and skills would have broken three things this pipeline depends on.
+
+### The technical difference
 
 | | Subagent | Skill |
 | :--- | :--- | :--- |
-| Context | Fresh, isolated[^1] | Inline in current conversation[^2] |
-| Best for | Self-contained tasks that produce verbose output you won't reference later | Reusable instructions, conventions, playbooks referenced during work |
-| Tool restrictions | Whitelist via `tools:` field[^1] | `allowed-tools:` field[^2] |
+| Where it runs | A **separate Claude instance** with its own context window[^subagents] | **Inline** in your main conversation, as additional instructions[^skills] |
+| What it returns | A single result message back to the orchestrator | Continued output in your main conversation |
+| Parallelism | Multiple subagents can run **truly parallel** | Sequential — runs in your main context |
+| Token cost | Higher (each agent has its own context) | Lower (shares one context) |
+| When the orchestrator sees the output | Just the final summary | Everything — prompt, reasoning, tool calls, output |
 
-For an architect → builder → reviewer pipeline, **subagents are the right fit**: each phase is self-contained, the reviewer needs to *not* see the builder's transcript, and the architect's clarifying-question dialogue should not pollute the implementation context. Skills would inline all three into one conversation and defeat the purpose.
+### What would break if we used skills
 
-[^1]: [Claude Code — Subagents](https://code.claude.com/docs/en/agents.md): "Subagents are AI assistants that your primary Claude Code agent can delegate tasks to. Each subagent has its own context, custom system prompt, and configured set of tools."
-[^2]: [Claude Code — Skills](https://code.claude.com/docs/en/skills.md): skills load inline into the current conversation as reusable task instructions.
+**1. The reviewer would lose its independence.**
+
+If `laravel-reviewer` were a skill, it would run in the same context that already contains the builder's full transcript — every file the builder wrote, every test it ran, every retry. A reviewer in that state has anchoring bias: it has *already seen* and *implicitly endorsed* the implementation by the time it starts reviewing. It will not flag what it just watched go in.
+
+A subagent reviewer sees **only the diff** (or whatever the orchestrator hands it). It has no sunk-cost feelings about the code. That's where independent findings come from.
+
+**2. The refinement phase couldn't run in parallel.**
+
+The architect, db-architect, and ui-ux agents are designed to work **simultaneously** on the same spec — three lenses on one problem. Subagents support this directly[^parallel-cite]; skills don't, because skills run inline and serialize into your main conversation.
+
+A skill-based "refinement" would have to be sequential: architect first, then db, then ui. Each downstream skill would read the upstream output and bias toward it. We'd lose the cross-check value of three independent perspectives.
+
+**3. Your main context would collapse.**
+
+When `laravel-architect` runs, it asks 5–15 clarifying questions, reads dozens of files, deliberates over edge cases. As a subagent, all of that happens in *its* context window — your main conversation only sees the final `architecture.md` file path.
+
+As a skill, every question, every file read, every deliberation lands in your main context. By the time the architect finishes, your context is half-full. By the time the builder finishes, you're out of room. The reviewer either gets a stub of context or fails.
+
+### When skills would be the right choice
+
+We use skills *inside* the agents — that's the right layer. Examples of things that would be skills (or rules), not subagents:
+
+- *"Before writing a migration, check existing tables for conflicting unique indexes"* — a procedural rule the architect always follows. Lives in the architect's system prompt or a referenced skill.
+- *"For every API response, the test must include a JSON schema assertion"* — a checklist item. Same.
+- *"Always run `pint --dirty` after edits"* — convention. Same.
+
+These are **non-autonomous** — they don't reason on their own, they're patterns the agent applies. Subagents are for **autonomous units of work that produce a deliverable**.
+
+### Summary
+
+A pipeline that needs (a) independent review, (b) parallel work, and (c) bounded context per phase is exactly what subagents exist for. We cited the docs in [^subagents-skills] so you can verify; if your use case doesn't need any of (a)/(b)/(c), skills are simpler and cheaper — use those instead.
+
+[^subagents-skills]: Both primitives are documented at [code.claude.com/docs/en/agents.md](https://code.claude.com/docs/en/agents.md) and [code.claude.com/docs/en/skills.md](https://code.claude.com/docs/en/skills.md). The "Subagent vs Skill" comparison comes directly from those pages.
+[^subagents]: [Claude Code — Subagents](https://code.claude.com/docs/en/agents.md): *"Each subagent has its own context, custom system prompt, and configured set of tools."*
+[^skills]: [Claude Code — Skills](https://code.claude.com/docs/en/skills.md): skills load inline into the current conversation as reusable task instructions, sharing the parent context window.
+[^parallel-cite]: [Claude Code — Subagents § Coordination](https://code.claude.com/docs/en/agents.md): the main conversation can dispatch multiple subagents in parallel by issuing multiple `Task` tool calls in one turn.
 
 ## Installation
 
