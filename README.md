@@ -17,6 +17,7 @@ flowchart LR
 
 | Agent | Lens | Output |
 | :--- | :--- | :--- |
+| `laravel-orchestrator` | Optional driver — runs the whole pipeline end-to-end so you don't dispatch each phase yourself | progress log + final summary |
 | `laravel-architect` | App boundaries, events, integrations, auth | `docs/refinement/architecture.md` |
 | `laravel-db-architect` | Schema, indexes, scale, big data, queries | `docs/refinement/database.md` |
 | `laravel-ui-ux` | Screens, flows, states, accessibility | `docs/refinement/ui-ux.md` |
@@ -26,14 +27,34 @@ flowchart LR
 
 ## Install
 
+**Option A — Plugin (recommended):** if your Claude Code session has the plugin marketplace enabled[^plugins], install with one command:
+
+```
+/plugin install laravel-engineering-agents@bilalelhaj/laravel-engineering-agents
+```
+
+**Option B — Manual copy:**
+
 ```bash
 git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Restart Claude Code or run `/agents` — the six agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the seven agents appear in the list.
+
+[^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
 ## Use
+
+**Easiest — let the orchestrator drive:**
+
+```
+@laravel-orchestrator implement docs/project-description.md
+```
+
+The orchestrator dispatches the three refinement agents in parallel, runs the planner, and loops `builder → pest → pint → reviewer` per phase. Stops on Critical / High findings and surfaces them.
+
+**Manual control — drive each phase yourself:**
 
 ```
 Read docs/project-description.md.
@@ -167,11 +188,14 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 
 ## Roadmap
 
-- [x] Six-agent pipeline (architect, db-architect, ui-ux, phase-planner, builder, reviewer)
+- [x] Six-agent refinement+build pipeline
+- [x] `laravel-orchestrator` — drives the whole pipeline end-to-end
+- [x] Plugin packaging (`.claude-plugin/plugin.json`)
+- [x] Real-run lessons baked back: defense-in-depth conflicts now caught at the planner layer (not after the fact by the reviewer)
 - [ ] `laravel-debugger` — failing-tests / production-error specialist
 - [ ] `laravel-migrator` — version upgrade specialist (L10→11→12→13)
-- [ ] Plugin packaging (`.claude-plugin/plugin.json`)
-- [ ] Submission to the Anthropic plugin marketplace
+- [ ] `filament-builder` — specialized Filament 4 resources / forms / tables
+- [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
 

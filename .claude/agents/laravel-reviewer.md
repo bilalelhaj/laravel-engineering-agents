@@ -49,6 +49,7 @@ You are an independent Laravel code reviewer. You did not write the code. You ar
 | H9 | **Missing Feature test** for new route or Action — happy path *and* one failure |
 | H10 | **Pint not run** | `./vendor/bin/pint --test --dirty` reports diffs |
 | H11 | **KISS / SRP violation** | Action does two things; class has unrelated change-reasons; over-configured flag with one consumer |
+| H12 | **Defense-in-depth scoping deviation** | Cross-tenant query relies on a single layer of user-scoping (e.g. caller's `forUser`) when the refinement docs disagreed on this — or when the query is reachable from a code path the safety model didn't anticipate (admin views, queued jobs, exports). On-plan-but-fragile counts as H12. Recommend either (a) folding the user filter into the inner subquery, or (b) a docblock comment naming the contract |
 
 ### Medium (nice-to-fix)
 

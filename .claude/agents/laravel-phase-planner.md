@@ -54,6 +54,18 @@ In a typical Laravel feature, dependencies usually flow:
 
 Skip steps that don't apply to the feature. Don't add steps to feel thorough.
 
+## Safety-critical disagreements
+
+A safety-critical disagreement is **not** a style difference and **must** be resolved with a deliberate decision before phases are written. The clearest case: architect says "caller scopes by user" while db-architect's plan recommends `[SAFETY-CRITICAL]` defense-in-depth scoping.
+
+When you find one:
+
+1. **Default to the stricter option** unless the architect's doc gives a concrete reason the looser variant is sufficient (e.g. "this scope is only ever called from Livewire components that all chain `forUser` already, no admin views, no queue consumers").
+2. **Document the resolution** in the cross-doc consistency check section as an explicit "Safety-critical resolution" subsection — what was disagreed on, what you chose, and why.
+3. **If both refinements are silent on a clearly cross-tenant query**, treat that as an open question for the user — don't ship without an explicit answer.
+
+This is the lesson from the v2→v3 evolution of the agents: independent reviewers caught defense-in-depth drift after the fact (H11). The phase-planner's job is to catch it before phases are written.
+
 ## Output format — `docs/phases.md`
 
 ```markdown

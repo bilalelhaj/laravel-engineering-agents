@@ -133,9 +133,18 @@ For each hot query:
 
 For each migration: estimate lock time on the largest target table.
 
+## Safety model checkpoint
+<Mandatory whenever the schema crosses tenant/user boundaries (FK to `users`, polymorphic relations, pivot tables touching multiple users).>
+Read the architect's "Safety model for cross-tenant data" section. State explicitly whether your query plan **agrees** or **proposes stricter** scoping (defense-in-depth):
+
+- **Agree (caller-scoped):** "Subqueries do not filter `tags.user_id`. Caller is responsible for `forUser($id)`."
+- **Stricter (defense-in-depth):** "Recommend filtering `tags.user_id = ?` inside the subquery on top of caller's `forUser`. Reasoning: <admin views / queued jobs / export jobs / unfamiliar callers>."
+
+If you recommend defense-in-depth, **flag it as `[SAFETY-CRITICAL]`** so the phase-planner cannot accept the less-strict variant without an explicit conflict-resolution entry.
+
 ## What sibling agents must know
 <Mandatory.>
-- **For laravel-architect:** <e.g. cascade behavior chosen, query patterns the Action layer should respect, where uniqueness is enforced at the DB vs Action level>
+- **For laravel-architect:** <e.g. cascade behavior chosen, query patterns the Action layer should respect, where uniqueness is enforced at the DB vs Action level. Always restate the safety-model checkpoint result so the architect can confirm.>
 - **For laravel-ui-ux:** <e.g. character set / length limits the input must respect, slug normalization rules for URL routing, latency budget for hot queries>
 
 ## Defer to other agents

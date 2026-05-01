@@ -118,9 +118,16 @@ If something is still blocking, list it under **Blocking** instead.
 ## Domain invariants
 <List rules the code must enforce. Each invariant must be testable.>
 
+## Safety model for cross-tenant data
+<Mandatory whenever the feature reads/writes data that belongs to a specific user/tenant. Pick ONE explicitly:>
+- **Caller-scoped** — the safety contract is that every caller chains `forUser($id)` (or equivalent). State this clearly so db-architect doesn't add redundant filters and the reviewer doesn't flag it.
+- **Defense-in-depth** — both the caller AND the inner query/subquery filter by user. Use this when callers are many or include code paths you don't fully control (admin views, queued jobs, exports).
+
+Whichever you pick, **db-architect must agree**. If db-architect's doc later disagrees, that is a phase-planner conflict, not a style difference.
+
 ## What sibling agents must know
 <Mandatory. Skip nothing the sibling agents would need to design correctly.>
-- **For db-architect:** <constraints from this lens that affect the schema or indexes — e.g. per-user soft cap of 500 tags requires a query path, hard cap of 20 per entry doesn't need DB enforcement>
+- **For db-architect:** <constraints from this lens that affect the schema or indexes — e.g. per-user soft cap of 500 tags requires a query path, hard cap of 20 per entry doesn't need DB enforcement. Always restate the safety model from the section above so db-architect can confirm.>
 - **For ui-ux:** <list every cap, limit, validation rule, authz check, and async behavior the UI must surface; if "none" say so>
 
 ## Defer to other agents

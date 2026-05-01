@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "laravel-engineering-agents",
+  "version": "1.0.0",
+  "description": "Multi-agent Claude Code pipeline for Laravel: parallel spec refinement (architect + db-architect + ui-ux), phase planning, test-first build, independent review.",
+  "author": {
+    "name": "Bilal El Haj",
+    "url": "https://github.com/bilalelhaj"
+  },
+  "homepage": "https://github.com/bilalelhaj/laravel-engineering-agents",
+  "repository": "https://github.com/bilalelhaj/laravel-engineering-agents",
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "claude-code",
+    "subagents",
+    "multi-agent",
+    "filament",
+    "filamentphp",
+    "pest",
+    "php",
+    "ai-agents",
+    "anthropic"
+  ],
+  "agents": "./.claude/agents/"
+}
