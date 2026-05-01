@@ -54,7 +54,7 @@ You are a senior UX-engineer for Laravel applications. You think in **screens, f
 ## Conventions to anchor on
 
 ### Filament (version-aware)
-- **Filament 4**: form signature is `public static function form(Schema $schema): Schema` with `Filament\Schemas\*` for layout components. Actions consolidated under `Filament\Actions\*`.[^1]
+- **Filament 4 and 5**: form signature is `public static function form(Schema $schema): Schema` with `Filament\Schemas\*` for layout components. Actions consolidated under `Filament\Actions\*`.[^1] **v5 = v4 with Livewire 4 requirement** — no Filament-API differences from v4.
 - **Filament 3**: `public static function form(Form $form): Form`, layout components live in `Filament\Forms\Components\*`.
 - Resource layout: `OrderResource\Schemas\OrderForm`, `OrderResource\Tables\OrdersTable` — split by concern, not all-in-the-Resource.
 - Tests use `Livewire\Livewire::test(...)` (capital L, static call), not the deprecated `livewire()` helper.[^1]

@@ -48,6 +48,60 @@ Either way: restart Claude Code or run `/agents` — the seven agents appear in 
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
+## Demo
+
+A run on a real Laravel 13 / Pest 4 project (the [`real-run.md`](examples/real-run.md) feature):
+
+```text
+$ claude
+
+> @laravel-orchestrator implement docs/project-description.md
+
+🟢 Detected: Laravel 13, PHP 8.3, Pest 4, Livewire 4 + Flux 2, SQLite
+
+🟡 Phase B — refinement (3 subagents in parallel)
+   ├─ @laravel-architect ........... ✓  docs/refinement/architecture.md
+   ├─ @laravel-db-architect ........ ✓  docs/refinement/database.md
+   └─ @laravel-ui-ux ............... ✓  docs/refinement/ui-ux.md
+   wall-clock: 2m 56s   (sequential would be 8m+)
+
+🟡 Phase C — phase planning
+   └─ @laravel-phase-planner ....... ✓  docs/phases.md
+      conflicts auto-resolved: 5
+      ├─ tags.show vs tag.show          → tags.show
+      ├─ {tag:id} vs {tag:slug}         → {tag:slug}
+      ├─ normalized_name vs slug        → slug
+      ├─ SyncTagsForEntry vs Attach…    → architect's names
+      └─ sidebar 1-link vs 15-recency   → UI's design
+
+🟡 Phase D — build / review (3 of 16 phases this run)
+   Phase 1 — Schema + factory
+      ├─ @laravel-builder ......... ✓  4 files, 1 test, 12 assertions
+      ├─ pest …………………………………………… ✓  green
+      ├─ pint …………………………………………… ✓  clean
+      └─ @laravel-reviewer ........ ✓  0 critical · 0 high · 2 medium
+
+   Phase 2 — Tag model + relations + forUser scope
+      ├─ @laravel-builder ......... ✓  4 files, 5 tests, 13 assertions
+      ├─ pest …………………………………………… ✓  green
+      └─ @laravel-reviewer ........ ✓  0 critical · 0 high · 2 medium
+
+   Phase 3 — Entry::scopeWithAllTags + scopeWithAnyTag
+      ├─ @laravel-builder ......... ✓  2 files, 7 tests, 10 assertions
+      ├─ pest …………………………………………… ✓  green
+      └─ @laravel-reviewer ........ ⚠  0 critical · 1 high · 2 medium
+         H12: defense-in-depth scoping deviation
+              app/Models/Entry.php:54-60 — caller-discipline only
+
+📋 Pipeline run summary
+   Total subagent invocations …… 10
+   New tests …………………………………… 13 (35 assertions)
+   Suite ………………………………………… 27 pre-existing failures preserved
+   Stopped at ……………………………… Phase 4 — H12 finding to triage with user
+```
+
+> Want a real recording? `asciinema rec demo.cast` while running the prompt above, then `agg demo.cast demo.gif`. PRs welcome.
+
 ## Use
 
 **Easiest — let the orchestrator drive:**
@@ -135,8 +189,11 @@ The agents detect your stack from `composer.json` and adapt — they're not pinn
 | Laravel | 10, 11, 12, 13[^laravel] |
 | PHP | 8.2+ recommended (8.3+ ideal) |
 | Pest | 3, 4[^pest] |
-| Filament | 3, 4[^filament] |
+| Filament | 3, 4, 5[^filament] |
+| Livewire | 3, 4 |
 | Tailwind | 3, 4 |
+
+**Filament 5 note:** v5 ships **no** Filament-API breaking changes vs. v4 — the major bump exists solely to require Livewire 4[^filament-v5]. The agents detect Filament v3 → v4 namespace shifts (different form/action namespaces) but treat v4 ↔ v5 as equivalent on the Filament side; they switch the Livewire 3 ↔ 4 conventions instead.
 
 ## Models
 
@@ -216,7 +273,8 @@ Issues and PRs welcome.
 [^arch-tests]: [Pest 3 — Arch testing](https://pestphp.com/docs/arch-testing).
 [^laravel]: [Laravel — Release notes](https://laravel.com/docs/12.x/releases).
 [^pest]: [Pest docs](https://pestphp.com/docs/writing-tests). Pest 4 adds Browser testing.
-[^filament]: [Filament 4 upgrade guide](https://filamentphp.com/docs/4.x/upgrade-guide).
+[^filament]: [Filament 4 upgrade guide](https://filamentphp.com/docs/4.x/upgrade-guide), [Filament 5 upgrade guide](https://filamentphp.com/docs/5.x/upgrade-guide).
+[^filament-v5]: [Filament v5 release notes — Laravel News](https://laravel-news.com/filament-5) and ["What actually changed in v5"](https://sadiqueali.medium.com/filament-v5-is-out-heres-what-actually-changed-and-what-you-should-upgrade-for-first-bbd27cbbd80f) — v5 = v4 + Livewire 4 requirement; no new Filament components or API changes.
 [^model]: [Claude Code — Subagents § Configuration](https://code.claude.com/docs/en/agents.md) — when `model` is omitted, the subagent inherits the parent session's model.
 [^subagents-skills]: [Claude Code — Subagents](https://code.claude.com/docs/en/agents.md) and [Skills](https://code.claude.com/docs/en/skills.md).
 [^parallel-cite]: [Claude Code — Subagents § Coordination](https://code.claude.com/docs/en/agents.md) — main conversation can dispatch multiple subagents in parallel via multiple `Task` calls in one turn.

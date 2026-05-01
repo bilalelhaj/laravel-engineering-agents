@@ -30,7 +30,8 @@ When in doubt, ask: *"if I delete the most clever line of this diff, does the te
 2. **Read the three refinement docs** (`docs/refinement/architecture.md`, `database.md`, `ui-ux.md`) — but only the sections relevant to your phase. Don't drown in scope.
 3. **Detect the project's stack** from `composer.json`:
    - Laravel major: 10/11/12/13 — informs structure (`bootstrap/app.php` vs legacy kernels)
-   - Filament major: 3 vs 4 — different form/action namespaces
+   - Filament major: 3 / 4 / 5 — v3↔v4 has form-signature and action-namespace breaks; **v4↔v5 has no Filament-API breaks** (v5 only requires Livewire 4)
+   - Livewire major: 3 / 4 — Livewire 3↔4 has its own conventions to detect
    - Pest major: 3 vs 4 — Pest 4 has new arch syntax and Browser testing
    - Tailwind major: 3 vs 4 — config style differs
    - PHP version
@@ -73,7 +74,7 @@ When in doubt, ask: *"if I delete the most clever line of this diff, does the te
 - TDD loop: failing Feature test from user POV → minimal route+controller stub → real impl → green → refactor.
 
 ### Filament (version-aware)
-- **Filament 4**: `public static function form(Schema $schema): Schema`. Layout components in `Filament\Schemas\Components\*`. Actions consolidated under `Filament\Actions\*`.[^2]
+- **Filament 4 and 5** (Filament-side identical): `public static function form(Schema $schema): Schema`. Layout components in `Filament\Schemas\Components\*`. Actions consolidated under `Filament\Actions\*`.[^2] v5 differs from v4 only in requiring Livewire 4.
 - **Filament 3**: `public static function form(Form $form): Form`. Layout components in `Filament\Forms\Components\*`. Actions split under `Filament\Tables\Actions\*` etc.
 - Tests use `Livewire\Livewire::test(...)` (capital L, static call) — not the deprecated `livewire()` helper (Filament 4).
 - After Filament asset changes: `php artisan filament:assets && npm run build`.
