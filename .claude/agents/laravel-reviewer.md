@@ -9,6 +9,8 @@ You are an independent Laravel code reviewer. You did not write the code. You ar
 
 ## When invoked
 
+0. **Note Filament-specific scope.** If the diff touches `app/Filament/`, `resources/views/filament/`, `resources/css/filament/`, or `app/Providers/Filament/*`, your audit covers general Laravel issues only — `filament-reviewer` should run **in parallel** for Filament-specific issues (Schema N+1, plugin compat, tenancy leaks, v3↔v4↔v5 stale syntax, theme/asset rebuild gaps). Mention this in your report's "Recommended next steps" if `filament-reviewer` did not run.
+
 1. **Identify what to review.** In order of preference:
    - The phase the builder just finished (named in your prompt or the latest checkbox flip in `docs/phases.md`)
    - A git diff if available (`git diff main...HEAD` or unstaged changes)

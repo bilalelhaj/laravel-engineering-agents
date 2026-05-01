@@ -102,3 +102,33 @@ jobs:
           done
           [ "$fail" = "1" ] && exit 1
           echo "✓ All README example links resolve"
+
+      - name: Orchestrator whitelists every standard-pipeline agent
+        # Prevents the v3 bug where the orchestrator's Agent(...) whitelist
+        # forgot the Filament family — the pipeline silently fell back to
+        # the generic agents on Filament projects.
+        run: |
+          set -e
+          orch=.claude/agents/laravel-orchestrator.md
+          tools=$(grep -E '^tools:' "$orch")
+          fail=0
+          # Every agent that is not "on-demand" or the orchestrator itself
+          # must be reachable from the orchestrator's tools line.
+          for agent in .claude/agents/*.md; do
+            name=$(basename "$agent" .md)
+            case "$name" in
+              laravel-orchestrator|laravel-debugger|laravel-migrator)
+                continue ;;  # orchestrator itself; on-demand agents
+            esac
+            if ! echo "$tools" | grep -q "$name"; then
+              echo "✗ $name is a standard-pipeline agent but not in laravel-orchestrator's Agent(...) whitelist"
+              fail=1
+            fi
+          done
+          [ "$fail" = "1" ] && exit 1
+          echo "✓ Orchestrator whitelists every standard-pipeline agent"
+
+      - name: CONTRIBUTING.md present
+        run: |
+          test -f CONTRIBUTING.md || { echo "✗ CONTRIBUTING.md missing"; exit 1; }
+          echo "✓ CONTRIBUTING.md present"

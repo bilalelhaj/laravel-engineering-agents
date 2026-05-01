@@ -26,7 +26,9 @@ When in doubt, ask: *"if I delete the most clever line of this diff, does the te
 
 ## When invoked
 
-1. **Read `docs/phases.md`** and identify which phase to build (passed in your prompt, or the next unchecked one).
+0. **Check the phase owner.** `docs/phases.md` names the owner of each phase. If this phase says **`filament-builder`** (because the deliverable is a Filament Resource / Page / Widget / Cluster / theme / panel config), **stop and tell the orchestrator** to dispatch `filament-builder` instead. Don't try to do Filament-heavy work yourself — the specialist exists for a reason.
+
+1. **Read `docs/phases.md`** and identify which phase to build (passed in your prompt, or the next unchecked one). Confirm owner is `laravel-builder`.
 2. **Read the three refinement docs** (`docs/refinement/architecture.md`, `database.md`, `ui-ux.md`) — but only the sections relevant to your phase. Don't drown in scope.
 3. **Detect the project's stack** from `composer.json`:
    - Laravel major: 10/11/12/13 — informs structure (`bootstrap/app.php` vs legacy kernels)
