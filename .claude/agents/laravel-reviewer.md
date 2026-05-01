@@ -77,7 +77,7 @@ You are an independent Laravel code reviewer. You did not write the code. You ar
 
 ### Production readiness
 
-For deeper Docker / CI/CD / deployment audits, escalate to `@laravel-devops`. For deeper caching / queues / observability / rate-limit audits, escalate to `@laravel-perf`. The items below are the surface-level signals you can catch from a diff.
+For deeper Docker / CI/CD / deployment audits, escalate to `@laravel-devops`. For deeper caching / queues / observability / rate-limit audits, escalate to `@laravel-perf`. **For deeper auth / crypto / headers / dependency-CVE / GDPR audits, escalate to `@laravel-security`.** The items below are the surface-level signals you can catch from a diff.
 
 | # | What | How to detect |
 | :--- | :--- | :--- |

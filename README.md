@@ -50,6 +50,7 @@ flowchart LR
 | `laravel-migrator` | Major version upgrades — Laravel 10→11→12→13, Filament 3→4→5, Pest 3→4, Livewire 3→4, Tailwind 3→4. Runs official upgraders, applies mechanical syntax shifts, surfaces non-mechanical decisions. One major at a time, stops on red. | migration report + diff |
 | `laravel-devops` | Dockerfile + Compose layout, CI/CD, deployment strategy, online migrations for live tables, image-size and cost trade-offs. Conservative — plans first, edits with explicit "go". | `docs/devops.md` |
 | `laravel-perf` | Caching strategy, queue architecture (Horizon, retry/backoff, dead-letter), rate-limiting, p95-latency budgets, Sentry / Pulse instrumentation. Profile before optimizing. | `docs/perf.md` |
+| `laravel-security` | Auth (password hashing, 2FA, sessions, tokens), authorization (Policies, tenancy), cryptography (encrypted casts, signed URLs), input validation, XSS / CSRF / SSRF, HTTP headers, dependency CVEs, secret management, GDPR. Threat-models every finding. | `docs/security.md` |
 
 ## Install
 
@@ -66,7 +67,7 @@ git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Either way: restart Claude Code or run `/agents` — the fourteen agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the fifteen agents appear in the list.
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
@@ -274,7 +275,7 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 - [x] Plugin packaging (`.claude-plugin/plugin.json`)
 - [x] Real-run lessons baked back: defense-in-depth conflicts caught at the planner layer
 - [x] Filament family: `filament-architect`, `filament-builder`, `filament-reviewer`
-- [x] On-demand: `laravel-debugger`, `laravel-migrator`, `laravel-devops`, `laravel-perf`
+- [x] On-demand: `laravel-debugger`, `laravel-migrator`, `laravel-devops`, `laravel-perf`, `laravel-security`
 - [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
