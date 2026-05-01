@@ -1,8 +1,12 @@
 # Laravel Engineering Agents
 
-> Multi-agent Claude Code pipeline for Laravel — generic specialists for any
-> Laravel project, plus a dedicated Filament family for admin-panel work. An
-> optional orchestrator drives the whole pipeline end-to-end with one prompt.
+> Seventeen Claude Code subagents for Laravel — a build pipeline (refinement →
+> planning → build → review), a Filament family for admin panels, and seven
+> on-demand specialists for debugging, version migrations, DevOps, performance,
+> security, business-priority triage, and queue-style task running over a
+> `TODO.md` / Linear / ClickUp / GitHub Issues.
+
+**The standard build pipeline:**
 
 ```mermaid
 flowchart LR
@@ -21,6 +25,27 @@ flowchart LR
     B & FB -. if Filament .-> FR["@filament-reviewer"]
     R & FR -->|findings| Spec
 ```
+
+**Plus a backlog flow over the same pipeline:**
+
+```mermaid
+flowchart LR
+    Backlog["TODO.md / Linear / ClickUp /<br/>Trello / GitHub Issues"]
+    Backlog --> TR["@laravel-triage<br/><sub>ranks P0–P4</sub>"]
+    TR -->|recommended order| Human((human approves))
+    Human --> TK["@laravel-tasks<br/><sub>runs items one by one,<br/>routes by classification</sub>"]
+    TK -.-> Pipe["the build pipeline above<br/>or a specialist below"]
+```
+
+**Five more specialists you invoke directly when you need them**, no pipeline involved:
+
+| | |
+| :--- | :--- |
+| `@laravel-debugger` | A test goes red unexpectedly |
+| `@laravel-migrator` | Major version upgrade (L10→11→12→13, Filament 3→4→5, Pest 3→4) |
+| `@laravel-devops` | Dockerfile / Compose / CI/CD / deployment / online migrations |
+| `@laravel-perf` | Caching / queues / rate-limit / p95 / observability |
+| `@laravel-security` | Auth / crypto / headers / CVE / GDPR / 2FA |
 
 **Generic Laravel agents** — load on every project:
 
@@ -174,7 +199,7 @@ Connect once via MCP, then point the task runner at the source instead of `TODO.
 
 Setup steps for each tool are in [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) — typically a one-time `claude mcp add ...` plus an OAuth login.
 
-For a one-line bug fix, skip the pipeline. Use it when the change touches the database and needs tests.
+**When NOT to use the pipeline:** for a one-line bug fix or typo, just prompt Claude Code directly — the orchestra is overhead. The pipeline pays off when the change touches the database and needs tests.
 
 **Example end-to-end run** — [`examples/real-run.md`](examples/real-run.md): real run on a Laravel 13 / Pest 4 diary app — 3 refinement agents in parallel, phase planning with 5 conflicts auto-resolved, 3 build/review cycles, 13 new tests passing, plus the v1 → v2 → v3 evolution.
 
