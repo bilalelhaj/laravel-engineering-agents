@@ -152,7 +152,18 @@ phase by phase with @laravel-builder, running @laravel-reviewer after each.
 @laravel-tasks run through TODO.md
 ```
 
-Drop a `TODO.md` at the repo root, write tasks as markdown checkboxes (optionally tagged `[feature]`, `[bug]`, `[migration]`, `[security]`, `[devops]`, `[perf]`). The agent classifies each item, dispatches to the right specialist, runs them one at a time, flips checkboxes on success. See [`examples/TODO.example.md`](examples/TODO.example.md) for the format. Linear / ClickUp / Trello / GitHub Issues are supported when an MCP server for them is configured.
+Drop a `TODO.md` at the repo root, write tasks as markdown checkboxes (optionally tagged `[feature]`, `[bug]`, `[migration]`, `[security]`, `[devops]`, `[perf]`). The agent classifies each item, dispatches to the right specialist, runs them one at a time, flips checkboxes on success. See [`examples/TODO.example.md`](examples/TODO.example.md) for the format.
+
+**External task sources — Linear / ClickUp / Trello / GitHub Issues:**
+
+Connect once via MCP, then point the task runner at the source instead of `TODO.md`:
+
+```
+@laravel-tasks run my Linear sprint
+@laravel-tasks pick the bugs from my ClickUp list "Sprint 12"
+```
+
+Setup steps for each tool are in [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) — typically a one-time `claude mcp add ...` plus an OAuth login.
 
 For a one-line bug fix, skip the pipeline. Use it when the change touches the database and needs tests.
 

@@ -53,3 +53,5 @@ If you put a tag in brackets at the start of a task, the agent uses it for routi
 ## External sources
 
 If you point the agent at Linear / ClickUp / Trello / GitHub Issues, it reads from there instead — but you must say so explicitly: *"@laravel-tasks run my Linear sprint"*. Otherwise it defaults to `TODO.md` at the repo root.
+
+Setup steps for each: see [`docs/INTEGRATIONS.md`](../docs/INTEGRATIONS.md).

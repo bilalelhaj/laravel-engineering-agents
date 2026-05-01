@@ -34,14 +34,14 @@ jobs:
       - run: |
           set -e
           fail=0
-          for link in $(grep -oE '\(examples/[^)]+\)' README.md | tr -d '()'); do
+          for link in $(grep -oE '\((examples|docs)/[^)]+\)' README.md | tr -d '()'); do
             if [ ! -f "$link" ]; then
               echo "✗ README links to '$link' but the file does not exist"
               fail=1
             fi
           done
           [ "$fail" = "1" ] && exit 1
-          echo "✓ All README example links resolve"
+          echo "✓ All README internal links resolve"
 
   contributing:
     name: CONTRIBUTING.md present
