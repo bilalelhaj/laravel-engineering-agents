@@ -1,8 +1,8 @@
 # Laravel Engineering Agents
 
-> Multi-agent Claude Code pipeline for Laravel — six specialists refine, plan,
-> build, and review your features. An optional orchestrator drives the whole
-> pipeline end-to-end with one prompt.
+> Multi-agent Claude Code pipeline for Laravel — generic specialists for any
+> Laravel project, plus a dedicated Filament family for admin-panel work. An
+> optional orchestrator drives the whole pipeline end-to-end with one prompt.
 
 ```mermaid
 flowchart LR
@@ -13,11 +13,16 @@ flowchart LR
     Spec --> A["@laravel-architect"]
     Spec --> D["@laravel-db-architect"]
     Spec --> UI["@laravel-ui-ux"]
-    A & D & UI --> P["@laravel-phase-planner"]
+    Spec -. if Filament .-> FA["@filament-architect"]
+    A & D & UI & FA --> P["@laravel-phase-planner"]
     P --> B["@laravel-builder"]
-    B --> R["@laravel-reviewer"]
-    R -->|findings| Spec
+    P -. if Filament .-> FB["@filament-builder"]
+    B & FB --> R["@laravel-reviewer"]
+    B & FB -. if Filament .-> FR["@filament-reviewer"]
+    R & FR -->|findings| Spec
 ```
+
+**Generic Laravel agents** — load on every project:
 
 | Agent | Lens | Output |
 | :--- | :--- | :--- |
@@ -28,6 +33,14 @@ flowchart LR
 | `laravel-phase-planner` | Synthesis → small deliverable phases | `docs/phases.md` |
 | `laravel-builder` | Test-first impl, KISS + SRP | code + tests |
 | `laravel-reviewer` | Independent per-phase audit | review report |
+
+**Filament family** — load only if your project uses [Filament](https://filamentphp.com). Run alongside the generic agents:
+
+| Agent | Lens | Output |
+| :--- | :--- | :--- |
+| `filament-architect` | Panel layout, resource organization, tenancy, plugins, custom pages, widgets | `docs/refinement/filament.md` |
+| `filament-builder` | Builds Resources / Pages / Widgets / Clusters with `make:filament-*` generators, Schema-based forms, `Livewire::test()` patterns | code + tests |
+| `filament-reviewer` | Independent Filament-specific audit — Schema N+1, plugin compat, tenancy leaks, v3↔v4↔v5 stale syntax | review report |
 
 ## Install
 
@@ -44,7 +57,7 @@ git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Either way: restart Claude Code or run `/agents` — the seven agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the ten agents appear in the list.
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
@@ -253,9 +266,9 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 - [x] `laravel-orchestrator` — drives the whole pipeline end-to-end
 - [x] Plugin packaging (`.claude-plugin/plugin.json`)
 - [x] Real-run lessons baked back: defense-in-depth conflicts now caught at the planner layer (not after the fact by the reviewer)
+- [x] Filament family: `filament-architect`, `filament-builder`, `filament-reviewer`
 - [ ] `laravel-debugger` — failing-tests / production-error specialist
 - [ ] `laravel-migrator` — version upgrade specialist (L10→11→12→13)
-- [ ] `filament-builder` — specialized Filament 4 resources / forms / tables
 - [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
