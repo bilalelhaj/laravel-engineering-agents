@@ -42,6 +42,13 @@ flowchart LR
 | `filament-builder` | Builds Resources / Pages / Widgets / Clusters with `make:filament-*` generators, Schema-based forms, `Livewire::test()` patterns | code + tests |
 | `filament-reviewer` | Independent Filament-specific audit — Schema N+1, plugin compat, tenancy leaks, v3↔v4↔v5 stale syntax | review report |
 
+**On-demand agents** — not part of the standard pipeline; invoke them when you need them:
+
+| Agent | When | Output |
+| :--- | :--- | :--- |
+| `laravel-debugger` | A test goes red unexpectedly, a stack trace points at vendor code, "works in dev but not in CI". Forms 3–5 hypotheses, narrows with cheap commands, hands you a minimal patch description. **Read-only** — does not implement the fix. | debug report |
+| `laravel-migrator` | Major version upgrades — Laravel 10→11→12→13, Filament 3→4→5, Pest 3→4, Livewire 3→4, Tailwind 3→4. Runs official upgraders, applies mechanical syntax shifts, surfaces non-mechanical decisions. One major at a time, stops on red. | migration report + diff |
+
 ## Install
 
 **Option A — Plugin (recommended):** if your Claude Code session has the plugin marketplace enabled[^plugins], install with one command:
@@ -57,7 +64,7 @@ git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Either way: restart Claude Code or run `/agents` — the ten agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the twelve agents appear in the list.
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
@@ -265,10 +272,9 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 - [x] Six-agent refinement+build pipeline
 - [x] `laravel-orchestrator` — drives the whole pipeline end-to-end
 - [x] Plugin packaging (`.claude-plugin/plugin.json`)
-- [x] Real-run lessons baked back: defense-in-depth conflicts now caught at the planner layer (not after the fact by the reviewer)
+- [x] Real-run lessons baked back: defense-in-depth conflicts caught at the planner layer
 - [x] Filament family: `filament-architect`, `filament-builder`, `filament-reviewer`
-- [ ] `laravel-debugger` — failing-tests / production-error specialist
-- [ ] `laravel-migrator` — version upgrade specialist (L10→11→12→13)
+- [x] On-demand: `laravel-debugger`, `laravel-migrator`
 - [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
