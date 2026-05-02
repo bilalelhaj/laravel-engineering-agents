@@ -1,12 +1,32 @@
 # Laravel Engineering Agents
 
-> Eighteen Claude Code subagents for Laravel — a build pipeline (refinement →
-> planning → build → review), a Filament family for admin panels, and eight
-> on-demand specialists for debugging, version migrations, DevOps, performance,
-> security, business-priority triage, plan stress-testing (premortem), and
-> queue-style task running over a `TODO.md` / Linear / ClickUp / GitHub Issues.
+> Multi-agent Claude Code workflow for Laravel — build features end-to-end,
+> run a TODO list, debug failing tests, plus specialists for migrations,
+> DevOps, performance, security, and pre-implementation stress-tests.
 
-**The standard build pipeline:**
+## Day 1 — three agents are enough
+
+If you've never used this before, install with the snippet below and start with these three. Everything else can wait.
+
+| | When you'd use it |
+| :--- | :--- |
+| **`@laravel-orchestrator`** | *"Build me this feature."* — runs the full pipeline (refinement → planning → build → review) end-to-end |
+| **`@laravel-tasks`** | *"Work through my TODO.md."* — reads a list, classifies each item, dispatches to the right specialist, flips checkboxes |
+| **`@laravel-debugger`** | *"This test was green yesterday — what broke?"* — read-only diagnosis, hands you a minimal patch description |
+
+```bash
+# install once (alternative: /plugin install — see "Install" below)
+git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
+cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
+```
+
+Restart Claude Code (or run `/agents`) and try `@laravel-orchestrator implement <something small>` first.
+
+That's it. The other 15 agents below are for when you've seen the basics work and want to go deeper — Filament-specific, version migrations, Docker / CI / cost, caching / queues / observability, security audits, business-priority triage, plan stress-tests. You don't need them on Day 1.
+
+---
+
+**The standard build pipeline (what `@laravel-orchestrator` runs under the hood):**
 
 ```mermaid
 flowchart LR
@@ -83,24 +103,17 @@ flowchart LR
 | `laravel-triage` | Reads the same backlog sources and ranks each item by business priority (P0 burning fire / P1 production bug / P2 customer-blocking / P3 standard / P4 backlog). Reads `docs/business-context.md` if present. Recommends order — never reorders the source. Use before sprint planning or when bug-fix vs feature tension exists. | triage report (ranked list with reasoning) |
 | `laravel-premortem` | Stress-tests a plan **before** it's built. Sets the frame *"it's 6 months from now, this plan has failed"*, generates failure scenarios, spawns parallel deep-dive agents per scenario, synthesizes most-likely / most-dangerous / hidden-assumption / revised plan / pre-impl checklist. Based on Gary Klein's premortem method. Use before phase-planning, before a major migration, before a high-stakes feature, or when something feels too clean. | `docs/premortem-{feature-slug}.md` |
 
-## Install
+## Install — plugin alternative
 
-**Option A — Plugin (recommended):** if your Claude Code session has the plugin marketplace enabled[^plugins], install with one command:
+The Day-1 snippet above uses `git clone` + `cp` because it always works. If your Claude Code session has the plugin marketplace enabled[^plugins], you can install with one command instead:
 
 ```
 /plugin install laravel-engineering-agents@bilalelhaj/laravel-engineering-agents
 ```
 
-**Option B — Manual copy:**
-
-```bash
-git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
-cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
-```
-
 Either way: restart Claude Code or run `/agents` — the eighteen agents appear in the list.
 
-[^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
+[^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads `.claude-plugin/plugin.json` from this repo's main branch.
 
 ## Demo
 
