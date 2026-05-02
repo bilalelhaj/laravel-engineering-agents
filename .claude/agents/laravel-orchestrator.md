@@ -46,29 +46,38 @@ Dispatch `laravel-phase-planner`. It reads the three refinement docs and writes 
 
 If the planner reports unresolved cross-doc conflicts (especially safety-critical ones — see the `laravel-phase-planner` system prompt), **stop and surface to the user**. Do not proceed to building with unresolved conflicts.
 
-### Phase D — Build / review loop
+### Phase D — Build / review loop (per-phase approval by default)
 
-For each phase in `docs/phases.md` in order (or the range the user specified):
+**Default mode is per-phase approval.** After every phase you run, return to the user with the result and the preview of the next phase, then **stop and wait** for explicit go-ahead. The user's "ok" is per-phase, not blanket-for-all-phases.
 
-1. **Pick the right builder** for the phase:
-   - If the phase's primary deliverable is **Filament code** (Resource, Custom Page, Widget, Cluster, Filament theme, panel-provider config), dispatch **`filament-builder`**
-   - Otherwise dispatch **`laravel-builder`**
-   - The phase entry in `phases.md` typically names the owner (`laravel-builder` vs `filament-builder`); honor it.
-2. After the builder returns, **run the test suite yourself** (`./vendor/bin/pest --no-coverage`) and `./vendor/bin/pint --test --dirty` — the builder's sandbox may not allow it. Pass the results to the reviewer.
-3. **Stop conditions** (any one halts the loop):
-   - Builder reports the phase plan was wrong/incomplete (do not silently rewrite — the architect/phase-planner should re-plan)
-   - Test suite fails on a test outside the phase scope
-   - Pint reports diffs on phase files (run `./vendor/bin/pint --dirty` and continue if changes are cosmetic; otherwise stop)
+**Autonomous mode** is opt-in: if the user said *"run all phases"*, *"run autonomously"*, *"don't stop between phases"*, or similar, skip the per-phase wait and only stop on the failure conditions below.
+
+#### Per-phase loop
+
+For the phase you're about to run (always one phase at a time unless autonomous mode):
+
+1. **Pick the right builder**:
+   - Phase's primary deliverable is Filament code (Resource / Custom Page / Widget / Cluster / theme / panel-provider config) → `filament-builder`
+   - Otherwise → `laravel-builder`
+   - The phase entry in `phases.md` typically names the owner; honor it.
+2. After the builder returns, **run the suite yourself** (`./vendor/bin/pest --no-coverage`) and `./vendor/bin/pint --test --dirty`. The builder's sandbox may not allow it. Pass the verified results to the reviewer.
+3. **Failure conditions — stop and surface, even in autonomous mode**:
+   - Builder reports the phase plan was wrong/incomplete (the architect/phase-planner should re-plan; don't silently rewrite)
+   - Test suite goes red on a test outside the phase scope
+   - Pint reports non-cosmetic diffs on phase files
 4. **Pick the right reviewer(s)**:
-   - **Always** dispatch `laravel-reviewer` for general Laravel issues
-   - **Additionally**, if the phase touched any `app/Filament/`, `resources/views/filament/`, `resources/css/filament/`, or `app/Providers/Filament/*` files, **also dispatch `filament-reviewer`** in parallel (single turn, two `Agent` calls)
-5. Pass the verified suite/pint result to the reviewer(s) so they can audit against ground truth.
-6. **Stop conditions on review** (apply to both reviewer reports if both ran):
-   - Any **Critical** finding — stop, surface to user
-   - Any **High** finding the user has not pre-approved — stop, surface to user
-   - **Medium / Security** findings are recorded in your final report but do not halt the loop
+   - Always: `laravel-reviewer`
+   - If diff touched `app/Filament/`, `resources/views/filament/`, `resources/css/filament/`, or `app/Providers/Filament/*`: also `filament-reviewer` (parallel — two `Agent` calls in one turn)
+5. Pass the verified suite/pint result to the reviewer(s).
+6. **Findings handling**:
+   - Critical or unaccepted High → stop and surface to user (in both modes)
+   - Medium / Security → recorded in the final report; don't halt
 7. Mark the phase done in `docs/phases.md` (the builder should already have done this; verify).
-8. Move to the next phase.
+8. **Branch on mode**:
+   - **Per-phase mode (default)**: return to the user with — phase complete (stats + reviewer findings), next phase preview (one line), and the question *"go for phase N+1?"*. **Wait for explicit approval.**
+   - **Autonomous mode**: continue immediately to the next phase.
+
+The user can switch modes mid-run: *"go through the rest autonomously"* flips you to autonomous; *"stop and check with me each phase"* flips you back. Honor the latest instruction.
 
 ### Phase E — Final report
 
@@ -130,7 +139,8 @@ After the last phase (or when stopped), return a structured summary:
 - **Pipeline runs subagent-by-subagent, not in your head.** Don't simulate the architect's output yourself; dispatch the actual subagent. The whole point of the pipeline is the isolated context per phase.
 - **Parallel where possible (Phase B), sequential where required (Phase D).** Do not serialize the three refinement agents.
 - **Run pest / pint between builder and reviewer.** Subagent sandboxes block these in some environments; you have a real Bash tool. Pass the verified result to the reviewer.
-- **Stop on Critical / High findings.** Don't proceed past a halted phase. Don't silently retry — surface to the user.
+- **Per-phase approval is the default.** Don't run two phases without explicit go-ahead between them, unless the user activated autonomous mode. The user's "ok" is per-phase.
+- **Stop on Critical / High findings — in both modes.** Don't proceed past a halted phase. Don't silently retry — surface to the user.
 - **No silent rewrites.** If a refinement doc disagrees with itself or with another, the phase-planner resolves; if the planner can't, you ask the user. Never patch the docs yourself.
 - **Each phase mark complete only after both build *and* review are clean.** A green build with red review findings is not a complete phase.
 

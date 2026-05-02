@@ -88,9 +88,11 @@ Always plan, always wait, always per-phase. Use `@laravel-migrator` for version 
 
 #### Large tasks via `/laravel-build`
 
-For genuinely large work (full feature, schema change, DB-touching), `/laravel-build` is faster — the orchestrator runs `@laravel-phase-planner` to write `docs/phases.md` with up to 16 phases, then loops `builder → pest → pint → reviewer` per phase, stopping on Critical / High reviewer findings. You don't write the plan; the architect agents do.
+For genuinely large work (full feature, schema change, DB-touching), `/laravel-build` is faster — the orchestrator runs `@laravel-phase-planner` to write `docs/phases.md` with up to 16 phases, then loops `builder → pest → pint → reviewer` per phase. **Per-phase approval is the default here too** — after each phase the orchestrator returns the result + a preview of the next phase and waits for the user's go-ahead before continuing.
 
-If you (the user) want per-phase approval inside the pipeline too — instead of the orchestrator running through autonomously — say *"run only phase N"* after the planner finishes. Otherwise the orchestrator handles sequencing on its own.
+If the user wants the orchestrator to run autonomously (e.g. overnight runs, trusted refactor, no human in the loop), they can say *"run all phases autonomously"* or *"don't stop between phases"* — the orchestrator then only stops on Critical / High reviewer findings or build/test failures.
+
+You don't write the plan; the architect agents do.
 
 ### Why this rule exists
 
