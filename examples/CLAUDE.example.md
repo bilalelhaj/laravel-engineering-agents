@@ -6,6 +6,42 @@
 
 This project has the [laravel-engineering-agents](https://github.com/bilalelhaj/laravel-engineering-agents) plugin — 18 specialized subagents and 6 slash commands. When the user asks for something, **route to the right agent** instead of doing it inline. The agents have deeper context, structured outputs, and independent reviewers — your job is to dispatch, not to compete with them.
 
+## Plan first — always, except for trivial changes
+
+**Default behavior**: before you touch code, propose a plan and wait for approval. Plan size scales with task size; the only thing that's not negotiable is *that* you plan.
+
+### Trivial — skip the plan, just do it
+
+Tasks that don't need a plan, by definition:
+
+- Cosmetic CSS / Tailwind class changes (button color, padding, font size)
+- Typo fixes in strings, comments, or docs
+- Variable / method / file renames where the meaning doesn't change
+- Comment edits and docblock tweaks
+- Single-line bug fixes when the cause is obvious from the message
+- Adding a missing `use` statement / import
+- Test rename without changing what it tests
+- Reordering `composer.json` / `package.json` keys
+
+If you're not sure whether a task qualifies as trivial — **it doesn't**. Plan it.
+
+### Everything else — plan, then execute
+
+Match the plan depth to the task:
+
+| Scope | What "plan" means here |
+| :--- | :--- |
+| **Small** — one file, has logic (e.g. *"add a validation rule"*, *"refactor this method"*) | Three bullets in chat: **what** you'll change, **why**, **how** (file:lines). Wait for "ok" before editing. |
+| **Medium** — multiple files, new behavior, no schema change (e.g. *"add a `/me/export` endpoint"*) | Same three bullets + a list of files you'll touch + the test you'll add first. Wait for "ok". |
+| **Large** — new feature, schema change, or anything DB-touching (e.g. *"add tags to entries"*) | Dispatch the pipeline: `/laravel-build <feature>`. The orchestrator runs refinement → planning → build → review. You don't plan inline — the architect agents do. |
+| **Migration / production change** | Always plan, always wait. `@laravel-migrator` for version upgrades, `@laravel-devops` for Docker/CI/deploy. Never silently. |
+
+### Why this rule exists
+
+LLMs without a plan-then-execute discipline drift: they over-edit, touch unrelated files, hallucinate "while I'm here" cleanups, miss the actual ask. A 60-second plan check catches that before any code is wrong.
+
+The user's time is also bounded — you reading the plan back to them takes 5 seconds, them correcting you takes 5 more. Both beat ten minutes of regenerating diff.
+
 ## How to route a request
 
 Read the user's request, classify the intent, dispatch the matching agent:
@@ -110,6 +146,7 @@ Example:
 
 ## Hard rules
 
+- **Plan first.** Propose a plan and wait for approval before editing. Skip only for trivial tasks (cosmetic CSS, typo, rename, single-line fix, comment, missing import). Anything with logic, multiple files, or schema change → plan first. See "Plan first" section above.
 - **Tests are not optional.** Don't skip them. Don't soften assertions to make them pass.
 - **No new layers** (`app/Services/`, `app/Repositories/`, `app/DTOs/`) unless the project already has them.
 - **No `composer update` without explicit instruction.**
