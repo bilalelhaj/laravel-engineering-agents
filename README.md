@@ -43,7 +43,7 @@ The plugin also installs six slash commands so you don't have to type `@laravel-
 | Connecting Linear / ClickUp / Trello / GitHub Issues | [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) |
 | A real end-to-end run (Laravel 13 + Pest 4) | [`examples/real-run.md`](examples/real-run.md) |
 | `TODO.md` format the task runner expects | [`examples/TODO.example.md`](examples/TODO.example.md) |
-| `CLAUDE.md` template for your project | [`examples/CLAUDE.example.md`](examples/CLAUDE.example.md) |
+| **Drop-in `CLAUDE.md`** for any new project — Claude reads it on session start, routes your requests to the right agent automatically | [`examples/CLAUDE.example.md`](examples/CLAUDE.example.md) |
 | Optional hooks (Pint after edit, Pest on stop, stack on session start) | [`examples/hooks.example.json`](examples/hooks.example.json) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
