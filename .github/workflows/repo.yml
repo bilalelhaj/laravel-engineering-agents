@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  readme-references:
-    name: README references every agent
+  agent-references:
+    name: Every agent is referenced in README or docs/AGENTS.md
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,13 +17,13 @@ jobs:
           fail=0
           for agent in .claude/agents/*.md; do
             name=$(basename "$agent" .md)
-            if ! grep -q "$name" README.md; then
-              echo "✗ README.md does not mention agent '$name'"
+            if ! grep -q "$name" README.md docs/AGENTS.md; then
+              echo "✗ Neither README.md nor docs/AGENTS.md mentions agent '$name'"
               fail=1
             fi
           done
           [ "$fail" = "1" ] && exit 1
-          echo "✓ README mentions every agent"
+          echo "✓ Every agent is referenced in README or docs/AGENTS.md"
 
   readme-links:
     name: README internal links resolve
