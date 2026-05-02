@@ -1,10 +1,10 @@
 # Laravel Engineering Agents
 
-> Seventeen Claude Code subagents for Laravel — a build pipeline (refinement →
-> planning → build → review), a Filament family for admin panels, and seven
+> Eighteen Claude Code subagents for Laravel — a build pipeline (refinement →
+> planning → build → review), a Filament family for admin panels, and eight
 > on-demand specialists for debugging, version migrations, DevOps, performance,
-> security, business-priority triage, and queue-style task running over a
-> `TODO.md` / Linear / ClickUp / GitHub Issues.
+> security, business-priority triage, plan stress-testing (premortem), and
+> queue-style task running over a `TODO.md` / Linear / ClickUp / GitHub Issues.
 
 **The standard build pipeline:**
 
@@ -18,7 +18,9 @@ flowchart LR
     Spec --> D["@laravel-db-architect"]
     Spec --> UI["@laravel-ui-ux"]
     Spec -. if Filament .-> FA["@filament-architect"]
-    A & D & UI & FA --> P["@laravel-phase-planner"]
+    A & D & UI & FA --> PM["@laravel-premortem<br/><sub>optional: stress-test the plan</sub>"]
+    PM --> P["@laravel-phase-planner"]
+    A & D & UI & FA -.->|or skip| P
     P --> B["@laravel-builder"]
     P -. if Filament .-> FB["@filament-builder"]
     B & FB --> R["@laravel-reviewer"]
@@ -37,7 +39,7 @@ flowchart LR
     TK -.-> Pipe["the build pipeline above<br/>or a specialist below"]
 ```
 
-**Five more specialists you invoke directly when you need them**, no pipeline involved:
+**Six more specialists you invoke directly when you need them**, no pipeline involved:
 
 | | |
 | :--- | :--- |
@@ -46,6 +48,7 @@ flowchart LR
 | `@laravel-devops` | Dockerfile / Compose / CI/CD / deployment / online migrations |
 | `@laravel-perf` | Caching / queues / rate-limit / p95 / observability |
 | `@laravel-security` | Auth / crypto / headers / CVE / GDPR / 2FA |
+| `@laravel-premortem` | "This plan failed in 6 months — why?" Pre-impl plan stress-test |
 
 **Generic Laravel agents** — load on every project:
 
@@ -78,6 +81,7 @@ flowchart LR
 | `laravel-security` | Auth (password hashing, 2FA, sessions, tokens), authorization (Policies, tenancy), cryptography (encrypted casts, signed URLs), input validation, XSS / CSRF / SSRF, HTTP headers, dependency CVEs, secret management, GDPR. Threat-models every finding. | `docs/security.md` |
 | `laravel-tasks` | Reads a `TODO.md` (or Linear / ClickUp / Trello / GitHub Issues via MCP), classifies each item, routes to the right pipeline (orchestrator for features, debugger for bugs, migrator for upgrades, security for audits, etc.), runs sequentially, flips checkboxes on success. One task at a time, stops on failure. | task-run report + updated `TODO.md` |
 | `laravel-triage` | Reads the same backlog sources and ranks each item by business priority (P0 burning fire / P1 production bug / P2 customer-blocking / P3 standard / P4 backlog). Reads `docs/business-context.md` if present. Recommends order — never reorders the source. Use before sprint planning or when bug-fix vs feature tension exists. | triage report (ranked list with reasoning) |
+| `laravel-premortem` | Stress-tests a plan **before** it's built. Sets the frame *"it's 6 months from now, this plan has failed"*, generates failure scenarios, spawns parallel deep-dive agents per scenario, synthesizes most-likely / most-dangerous / hidden-assumption / revised plan / pre-impl checklist. Based on Gary Klein's premortem method. Use before phase-planning, before a major migration, before a high-stakes feature, or when something feels too clean. | `docs/premortem-{feature-slug}.md` |
 
 ## Install
 
@@ -94,7 +98,7 @@ git clone https://github.com/bilalelhaj/laravel-engineering-agents.git
 cp -r laravel-engineering-agents/.claude/agents/* .claude/agents/
 ```
 
-Either way: restart Claude Code or run `/agents` — the seventeen agents appear in the list.
+Either way: restart Claude Code or run `/agents` — the eighteen agents appear in the list.
 
 [^plugins]: [Claude Code — Plugins](https://code.claude.com/docs/en/plugins.md) — `/plugin install` reads the `.claude-plugin/plugin.json` manifest from the linked GitHub repo. The same agents work via manual `cp` if you don't use the plugin system.
 
@@ -187,6 +191,14 @@ Drop a `TODO.md` at the repo root, write tasks as markdown checkboxes (optionall
 ```
 
 Returns a P0–P4 sorted list with one line of reasoning per item — bugs in production rank above features, security findings on production are always P0, customer-attached items beat internal ones. Reads `docs/business-context.md` if you keep one. Recommends order, never reorders the source. Run this before `@laravel-tasks` if the order matters.
+
+**Premortem before high-stakes plans:**
+
+```
+@laravel-premortem stress-test docs/refinement/architecture.md
+```
+
+Sets the frame *"it's 6 months from now, this plan has failed"*, generates failure scenarios, spawns parallel deep-dives per scenario, synthesizes the most-likely failure, the most-dangerous failure, the hidden assumption, a revised plan, and a pre-implementation checklist. Best run after refinement and **before** phase-planning, or before any major migration. Based on Gary Klein's method ([HBR 2007](https://hbr.org/2007/09/performing-a-project-premortem)).
 
 **External task sources — Linear / ClickUp / Trello / GitHub Issues:**
 
@@ -332,6 +344,7 @@ Builders that review themselves rubber-stamp. They have sunk-cost feelings about
 - [x] On-demand: `laravel-debugger`, `laravel-migrator`, `laravel-devops`, `laravel-perf`, `laravel-security`
 - [x] Task runner: `laravel-tasks` — reads `TODO.md` (or Linear / ClickUp / Trello via MCP) and dispatches each item
 - [x] Backlog triage: `laravel-triage` — ranks items by business priority before the runner picks them up
+- [x] Plan stress-test: `laravel-premortem` — assumes the plan failed and works backward (Gary Klein's method)
 - [ ] Submission to the [Anthropic plugin marketplace](https://claude.ai/settings/plugins/submit)
 
 Issues and PRs welcome.
