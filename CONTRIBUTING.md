@@ -74,8 +74,8 @@ Three workflows run on every push and PR:
 - Every standard-pipeline agent is reachable from the orchestrator's `Agent(...)` whitelist
 
 **`Repository`** — `.github/workflows/repo.yml`
-- README mentions every agent
-- README internal links resolve
+- Every agent is referenced in README **or** `docs/AGENTS.md`
+- README internal links to `docs/` and `examples/` resolve
 - `CONTRIBUTING.md` present
 
 All three must be green to merge. Each shows up as a separate status check on the PR.

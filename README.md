@@ -21,9 +21,20 @@ Restart Claude Code (or run `/agents`), then try `@laravel-orchestrator implemen
 
 Plugin-marketplace alternative: `/plugin install laravel-engineering-agents@bilalelhaj/laravel-engineering-agents`.
 
-## When you want more
+## Slash commands (speed-dial over the agents)
 
-The other 15 agents are documented separately so this README stays scannable:
+The plugin also installs six slash commands so you don't have to type `@laravel-name` every time:
+
+| | |
+| :--- | :--- |
+| `/laravel-build <feature>` | runs the full pipeline via `@laravel-orchestrator` |
+| `/laravel-tasks [source]` | works through `TODO.md` or a named external source |
+| `/laravel-triage [source]` | ranks the backlog by P0–P4 priority |
+| `/laravel-premortem <plan>` | stress-tests a plan before implementation |
+| `/laravel-review [scope]` | independent audit of pending changes |
+| `/laravel-debug <test/error>` | hypothesis-driven diagnosis, hands you a patch |
+
+## When you want more
 
 | Want to know… | Read |
 | :--- | :--- |
@@ -31,7 +42,9 @@ The other 15 agents are documented separately so this README stays scannable:
 | Coding philosophy & design choices (KISS / SRP / why subagents not skills) | [`docs/PHILOSOPHY.md`](docs/PHILOSOPHY.md) |
 | Connecting Linear / ClickUp / Trello / GitHub Issues | [`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md) |
 | A real end-to-end run (Laravel 13 + Pest 4) | [`examples/real-run.md`](examples/real-run.md) |
-| TODO.md format the task runner expects | [`examples/TODO.example.md`](examples/TODO.example.md) |
+| `TODO.md` format the task runner expects | [`examples/TODO.example.md`](examples/TODO.example.md) |
+| `CLAUDE.md` template for your project | [`examples/CLAUDE.example.md`](examples/CLAUDE.example.md) |
+| Optional hooks (Pint after edit, Pest on stop, stack on session start) | [`examples/hooks.example.json`](examples/hooks.example.json) |
 | Contributing | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
 ## Stack

@@ -22,5 +22,6 @@
     "ai-agents",
     "anthropic"
   ],
-  "agents": "./.claude/agents/"
+  "agents": "./.claude/agents/",
+  "commands": "./commands/"
 }

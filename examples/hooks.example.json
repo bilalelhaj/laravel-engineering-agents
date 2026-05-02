@@ -1,0 +1,43 @@
+{
+  "_comment": "OPT-IN. Copy the relevant sections into your project's .claude/settings.json (or ~/.claude/settings.json for all projects). The plugin does NOT install these automatically — hooks change every prompt, so you should opt in deliberately.",
+
+  "_pint-after-edit": "Auto-runs Pint on changed files after every Edit/Write/MultiEdit. Skips silently if vendor/bin/pint isn't present.",
+  "_pest-on-stop": "Runs the test suite once at session end. Skip if your suite is slow.",
+  "_loaded-stack-on-start": "Prints detected Laravel/Pest/Filament versions when a session starts so the agent context starts grounded.",
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f vendor/bin/pint && ./vendor/bin/pint --dirty --quiet 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f vendor/bin/pest && ./vendor/bin/pest --no-coverage --compact 2>&1 | tail -3 || echo 'pest not installed; skipping'"
+          }
+        ]
+      }
+    ],
+
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f composer.json && jq -r 'def ver(p): .require[p] // .[\"require-dev\"][p] // \"n/a\"; \"Detected stack: Laravel \\(ver(\"laravel/framework\")) · Pest \\(ver(\"pestphp/pest\")) · Filament \\(ver(\"filament/filament\")) · Livewire \\(ver(\"livewire/livewire\"))\"' composer.json 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
