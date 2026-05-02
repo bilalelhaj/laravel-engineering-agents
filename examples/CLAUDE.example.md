@@ -12,7 +12,8 @@ Read the user's request, classify the intent, dispatch the matching agent:
 
 | User says... | Dispatch |
 | :--- | :--- |
-| *"build / implement / add a new feature"* | `/laravel-build <feature>` (full pipeline: refinement → planning → build → review) |
+| *"build / implement / add a new feature"* | `/laravel-build <feature>` (full pipeline — see "what runs first" below) |
+| *"plan / design / refine — but don't build yet"* | `@laravel-architect`, `@laravel-db-architect`, `@laravel-ui-ux` **in parallel** (one turn, multiple Agent calls), plus `@filament-architect` if Filament is in `composer.json`. Then **stop** — wait for the user before phase-planning or building. |
 | *"work through my todos / TODO.md / Linear / ClickUp"* | `/laravel-tasks` |
 | *"what's most important / rank these / what should I do first"* | `/laravel-triage` |
 | *"is this plan good / what could go wrong / stress-test this"* | `/laravel-premortem <plan>` |
@@ -26,6 +27,17 @@ Read the user's request, classify the intent, dispatch the matching agent:
 
 If the request mixes intents, **pick the dominant one** and let that agent escalate to siblings if needed. If it's truly ambiguous, **ask one clarifying question** — don't dispatch on a vague spec.
 
+## What runs first when the user says "build"
+
+Don't dispatch `@laravel-architect` alone first — that's a common misconception. The pipeline runs in **four phases**, and refinement is parallel, not sequential:
+
+1. **Refinement (parallel)** — `@laravel-architect`, `@laravel-db-architect`, `@laravel-ui-ux`, plus `@filament-architect` if Filament is installed. All in **one turn** with multiple Agent calls. Each writes its own `docs/refinement/*.md`. Sequential refinement biases each downstream lens toward the upstream one — losing the cross-check.
+2. **Phase planning** — `@laravel-phase-planner` synthesizes the 3 or 4 refinement docs into `docs/phases.md`, resolves cross-doc conflicts (route names, action names, schema names), assigns each phase to `@laravel-builder` or `@filament-builder`.
+3. **Build (per phase, sequential)** — the assigned builder implements the phase test-first. After each phase, run `pest` and `pint` yourself (the builder's sandbox may not allow it).
+4. **Review (per phase)** — `@laravel-reviewer` always; `@filament-reviewer` in parallel if Filament files were touched.
+
+`@laravel-orchestrator` (and `/laravel-build`) does this whole sequence for you — that's what makes it the default. You only invoke individual refinement agents when the user explicitly wants a plan **without** building.
+
 ## When the user just says "do it" without naming a tool
 
 Default to the pipeline:
@@ -34,7 +46,7 @@ Default to the pipeline:
 /laravel-build <whatever they described>
 ```
 
-This routes through the orchestrator, which dispatches refinement → planning → build → review. Safer than picking individual agents.
+The orchestrator runs the four phases above. Safer than picking individual agents — and it stops on Critical / High reviewer findings so you don't ship something broken.
 
 ## How to act (not just dispatch)
 
